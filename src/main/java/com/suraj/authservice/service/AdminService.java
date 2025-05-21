@@ -1,5 +1,6 @@
 package com.suraj.authservice.service;
 
+import com.suraj.authservice.dto.RoleChangeRequest;
 import com.suraj.authservice.entity.Role;
 
 /**
@@ -19,5 +20,5 @@ public interface AdminService {
      * @throws com.suraj.authservice.exception.ResourceNotFoundException if the user is not found
      * @throws com.suraj.authservice.exception.InvalidRoleException if the role change is invalid
      */
-    String changeUserRole(String username, Role newRole, String reason);
+    String changeUserRole(RoleChangeRequest reason);
 }

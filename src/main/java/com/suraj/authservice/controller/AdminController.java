@@ -46,13 +46,9 @@ public class AdminController {
             @Parameter(description = "Role change details", required = true)
             @Valid @RequestBody RoleChangeRequest request) {
         
-        log.debug("Role change request received for user: {}", request.getUsername());
+        log.debug("Role change request received for user: {}", request.username());
         
-        String result = adminService.changeUserRole(
-                request.getUsername(),
-                request.getNewRole(),
-                request.getReason()
-        );
+        String result = adminService.changeUserRole(request);
         
         ApiResponse<String> response = new ApiResponse<>(
                 200,
@@ -81,8 +77,10 @@ public class AdminController {
                 200,
                 true,
                 "Role System Information",
-                "The system supports the following roles: ROLE_USER (basic access), ROLE_ADMIN (full access). " +
-                        "Role changes are audited and can only be performed by administrators."
+                "The system supports the following roles: ROLE_USER (basic access), ROLE_ADMIN (full access), " +
+                        "ROLE_MANAGER (department management), ROLE_AUDITOR (read-only access), " +
+                        "ROLE_SUPPORT (customer support). Role changes are audited and can only be " +
+                        "performed by administrators."
         );
         
         return ResponseEntity.ok(response);

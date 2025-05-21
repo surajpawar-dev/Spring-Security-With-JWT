@@ -1,5 +1,6 @@
 package com.suraj.authservice.service.impl;
 
+import com.suraj.authservice.dto.RoleChangeRequest;
 import com.suraj.authservice.entity.Role;
 import com.suraj.authservice.entity.User;
 import com.suraj.authservice.exception.InvalidRoleException;
@@ -30,40 +31,45 @@ public class AdminServiceImpl implements AdminService {
      */
     @Override
     @Transactional
-    public String changeUserRole(String username, Role newRole, String reason) {
+    public String changeUserRole(RoleChangeRequest request) {
         // Get the current admin username for audit logging
         String adminUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        
+
+        // Extract values from the request record
+        String username = request.username();
+        Role newRole = request.newRole();
+        String reason = request.reason();
+
         // Find the user by username
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
-        
+
         // Get the current role
         Role oldRole = user.getRole();
-        
+
         // Prevent changing your own role (security measure)
         if (username.equals(adminUsername)) {
             throw new InvalidRoleException("Administrators cannot change their own role");
         }
-        
+
         // Only allow changes if the role is actually different
         if (oldRole == newRole) {
             return String.format("User '%s' already has the role %s. No changes made.", username, newRole);
         }
-        
+
         // Update the user's role
         user.setRole(newRole);
         userRepository.save(user);
-        
+
         // Log the role change with detailed information for audit purposes
         String logMessage = String.format(
                 "Role change: User '%s' role changed from %s to %s by admin '%s' at %s. Reason: %s",
                 username, oldRole, newRole, adminUsername, LocalDateTime.now(),
                 reason != null ? reason : "No reason provided"
         );
-        
+
         log.info(logMessage);
-        
+
         return String.format("User '%s' role successfully changed from %s to %s", username, oldRole, newRole);
     }
 }
